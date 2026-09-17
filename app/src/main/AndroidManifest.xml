@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.tuusuario.smartclock">
+    package="com.tuusuario.nexustime">
 
-    <!-- Permisos para Alarmas, Notificaciones e Internet -->
+    <!-- PERMISOS DE NEXUSTIME -->
+    <!-- Alarmas y Notificaciones -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Red y Servicios -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Lectura de Calendario y Agenda -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    
+    <!-- Detección de Reinicio del Dispositivo -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name=".SmartClockApplication"
+        android:name=".NexusTimeApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="SmartClock"
+        android:label="NexusTime"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
+        <!-- ACTIVIDAD PRINCIPAL (PANTALLA HOME) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -25,6 +35,34 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- RECEPTORES EN SEGUNDO PLANO (FASE 3) -->
+        
+        <!-- 1. Detección de Cargador Conectado / Desconectado -->
+        <receiver
+            android:name=".core.receiver.ChargingReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 2. Anuncio Horario de Voz (Chime) -->
+        <receiver
+            android:name=".core.receiver.HourlyChimeReceiver"
+            android:exported="true" />
+
+        <!-- 3. Reactivación Automática al Encender / Reiniciar Tablet -->
+        <receiver
+            android:name=".core.receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
