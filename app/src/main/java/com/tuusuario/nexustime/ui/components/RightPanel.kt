@@ -3,19 +3,28 @@ package com.tuusuario.nexustime.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tuusuario.nexustime.core.calendar.CalendarEvent
 import com.tuusuario.nexustime.ui.theme.*
 
 @Composable
 fun RightPanel(
+    events: List<CalendarEvent>,
+    isChimeEnabled: Boolean,
+    isChargingAlertsEnabled: Boolean,
+    onChimeToggle: (Boolean) -> Unit,
+    onChargingAlertsToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -36,34 +45,39 @@ fun RightPanel(
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Tarjetas de Eventos (Agenda)
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            EventCard(
-                time = "11:30 AM",
-                title = "Reunión de Proyecto",
-                location = "Google Meet",
-                accentColor = ElectricBlue
-            )
-            EventCard(
-                time = "01:00 PM",
-                title = "Almuerzo de Trabajo",
-                location = "Café Central",
-                accentColor = SkyBlue
-            )
-            EventCard(
-                time = "03:45 PM",
-                title = "Revisión de Avances",
-                location = "Sala B",
-                accentColor = SilverMetal
-            )
+        // Lista de Eventos Reales de la Agenda
+        if (events.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No hay eventos pendientes para hoy",
+                    color = SilverMetal,
+                    fontSize = 13.sp
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(events) { event ->
+                    EventCard(
+                        time = event.startTime,
+                        title = event.title,
+                        location = "Calendario Android",
+                        accentColor = ElectricBlue
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección de Switches / Alarmas Rápidas
+        // Sección de Controles Reales
         Text(
             text = "CONTROLES RÁPIDOS",
             color = SilverMetal,
@@ -72,18 +86,15 @@ fun RightPanel(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        var alarm1Enabled by remember { mutableStateOf(true) }
-        var alarm2Enabled by remember { mutableStateOf(false) }
-
         AlarmToggleRow(
-            label = "Alarma 07:00 AM",
-            checked = alarm1Enabled,
-            onCheckedChange = { alarm1Enabled = it }
+            label = "Anuncio Horario (Chime)",
+            checked = isChimeEnabled,
+            onCheckedChange = onChimeToggle
         )
         AlarmToggleRow(
-            label = "Alarma 08:30 AM",
-            checked = alarm2Enabled,
-            onCheckedChange = { alarm2Enabled = it }
+            label = "Alertas de Carga de Batería",
+            checked = isChargingAlertsEnabled,
+            onCheckedChange = onChargingAlertsToggle
         )
     }
 }
@@ -93,7 +104,7 @@ fun EventCard(
     time: String,
     title: String,
     location: String,
-    accentColor: androidx.compose.ui.graphics.Color
+    accentColor: Color
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -161,4 +172,3 @@ fun AlarmToggleRow(
         )
     }
 }
-
