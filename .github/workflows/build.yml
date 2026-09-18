@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Obtener código del repositorio
+      - name: Obtener codigo del repositorio
         uses: actions/checkout@v4
 
       - name: Configurar JDK 17
@@ -18,17 +18,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      - name: Dar permisos de ejecución a gradlew
-        run: chmod +x gradlew
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Compilar APK de NexusTime
-        run: ./gradlew assembleDebug
+        run: gradle assembleDebug
 
       - name: Publicar APK como Artefacto
         uses: actions/upload-artifact@v4
         with:
           name: NexusTime-APK
           path: app/build/outputs/apk/debug/app-debug.apk
-
